@@ -65,6 +65,6 @@ def play(gamma, alpha, epsilon, n_episodes, decay, iterations):
             # Set new state
             s = s1
         print("{}\n".format(r))
-    print("The agent averaged a return of {}".format(score/iterations))
+    print("The agent had succesful dropoffs {} percent of the time".format((score/iterations)*100))
 
 play(0.95, 0.8, 1, 50000, 0.99, 100)

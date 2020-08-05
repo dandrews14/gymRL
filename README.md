@@ -9,5 +9,5 @@ Algorithms used:
 - Deep Deterministic Policy Gradients (DDPG)
 
 OpenAI Gym games solved:
-- Toy text
- - Taxi: SARSA, Q-learning
+- Toy text:
+    - Taxi: SARSA, Q-learning
