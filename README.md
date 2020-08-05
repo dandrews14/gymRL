@@ -10,4 +10,4 @@ Algorithms used:
 
 OpenAI Gym games solved:
 - Toy text
--- Taxi: SARSA, Q-learning
+ - Taxi: SARSA, Q-learning

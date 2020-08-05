@@ -49,7 +49,7 @@ def play(gamma, alpha, epsilon, n_episodes, decay, iterations):
     env = gym.make('Taxi-v3')
     score = 0
     for i in range(iterations):
-        print("Round {}:\n".format(i))
+        print("Round {}:".format(i))
         s = env.reset()
         d = False
         while d != True:
@@ -64,7 +64,7 @@ def play(gamma, alpha, epsilon, n_episodes, decay, iterations):
                 score += 1
             # Set new state
             s = s1
-        print(r)
+        print("{}\n".format(r))
     print("The agent averaged a return of {}".format(score/iterations))
 
 play(0.95, 0.8, 1, 50000, 0.99, 100)
