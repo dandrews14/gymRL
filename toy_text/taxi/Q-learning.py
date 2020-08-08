@@ -40,11 +40,12 @@ def Q_learn(gamma, alpha, epsilon, n_episodes, decay):
                 action = env.action_space.sample() # take random action
             else:
                 action = np.argmax(Q[state])
+            
             # Get next state
             state2, reward, complete, _ = env.step(action)
             
             # Update Q
-            Q[state][action] = Q[state][action] + alpha*(reward + gamma*np.amax(Q[state2, :]) - Q[state][action])
+            Q[state][action] = Q[state][action] + alpha*(reward + gamma*np.max(Q[state2]) - Q[state][action])
 
             if complete:
                 epsilon = epsilon*decay
