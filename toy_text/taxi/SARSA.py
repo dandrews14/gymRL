@@ -8,6 +8,13 @@ colorama.init()
 
     
 def sarsa(gamma, alpha, epsilon, n_episodes, decay):
+    """
+    gamma: Discount rate
+    alpha: Learning rate
+    epsilon: Exploration rate
+    n_episodes: Number of training episodes
+    decay: Epsilon decay rate
+    """
     env = gym.make('Taxi-v3')
     env.render()
     
@@ -17,9 +24,9 @@ def sarsa(gamma, alpha, epsilon, n_episodes, decay):
         state1 = env.reset()
         
         if np.random.uniform(0,1) < epsilon:
-            action1 = np.random.randint(4) # take random action
+            action1 = env.action_space.sample() # take random action
         else:
-            action1 = np.argmax(Q[state1, :])
+            action1 = np.argmax(Q[state1])
 
         while True:
 
@@ -45,6 +52,14 @@ def sarsa(gamma, alpha, epsilon, n_episodes, decay):
     return Q
 
 def play(gamma, alpha, epsilon, n_episodes, decay, iterations):
+    """
+    gamma: Discount rate
+    alpha: Learning rate
+    epsilon: Exploration rate
+    n_episodes: Number of training episodes
+    decay: Epsilon decay rate
+    iterations: Number of testing iterations
+    """
     q = sarsa(gamma, alpha, epsilon, n_episodes, decay)
     env = gym.make('Taxi-v3')
     score = 0
@@ -67,4 +82,5 @@ def play(gamma, alpha, epsilon, n_episodes, decay, iterations):
         print("{}\n".format(r))
     print("The agent had succesful dropoffs {} percent of the time".format((score/iterations)*100))
 
+# Train agent and test performance
 play(0.95, 0.8, 1, 50000, 0.99, 100)

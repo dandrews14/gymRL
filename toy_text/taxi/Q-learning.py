@@ -14,63 +14,57 @@ def sarsa(gamma, alpha, epsilon, n_episodes, decay):
     Q = np.zeros((env.observation_space.n, env.action_space.n))
     
     for ep in range(n_episodes):
-        state1 = env.reset()
-        #print(reward)
+        state = env.reset()
+        if not ep%1000:
+            print(ep)
         
         if np.random.uniform(0,1) < epsilon:
-            action1 = np.random.randint(4)# take random action
+            action = env.action_space.sample() # take random action
         else:
-            action1 = np.argmax(Q[state1, :])
-        #print("######################")
+            action = np.argmax(Q[state])
+
         while True:
-            #env.render()
+
             # Get next state
-            state2, reward, complete, _ = env.step(action1)
-            #print(reward)
-            
-            # Choose next action
-            if np.random.uniform(0,1) < epsilon:
-                action2 = np.random.randint(4) # take random action
-            else:
-                action2 = np.argmax(Q[state2, :])
-            
-            #Q = sarsa(state, state2, reward, action, action_2, gamma, alpha, epsilon, Q)
-            # Update Q
-            prediction = Q[state1, action1]
-            target = reward + gamma*Q[state2, action2]
-            Q[state1, action1] = Q[state1,action1] + alpha*(target-prediction)
-            
-            state1 = state2
-            action1 = action2
-            
-            if complete:
+            state2, reward, complete, _ = env.step(action)
+
+            if reward == 20:
+                Q[state][action] = Q[state][action] + alpha*(reward - Q[state][action])
+                break
+
+            elif complete:
                 epsilon = epsilon*decay
                 break
-    #print(rewards)        
+            
+            # Update Q
+            else:
+                Q[state][action] = Q[state][action] + alpha*(reward + gamma*np.max(Q[state2]) - Q[state][action])
+            
+            state = state2
+            
     return Q
 
-def play(gamma, alpha, epsilon, n_episodes, decay):
+def play(gamma, alpha, epsilon, n_episodes, decay, iterations):
     q = sarsa(gamma, alpha, epsilon, n_episodes, decay)
     env = gym.make('Taxi-v3')
     score = 0
-    # Reset environment
-    for i in range(100):
-        print("Round {}:\n".format(i))
+    for i in range(iterations):
+        print("Round {}:".format(i))
         s = env.reset()
         d = False
-        # The Q-Table learning algorithm
         while d != True:
             #env.render()
             #time.sleep(0.5)
+
             # Choose action from Q table
             a = np.argmax(q[s,:])
-            #Get new state & reward from environment
+            # Get new state & reward from environment
             s1,r,d,_ = env.step(a)
             if r == 20:
                 score += 1
-
-            #Update Q-Table with new knowledge
+            # Set new state
             s = s1
-    print(score/100)
+        print("{}\n".format(r))
+    print("The agent had succesful dropoffs {} percent of the time".format((score/iterations)*100))
 
-play(0.95, 0.8, 1, 50000, 0.99)
+play(0.95, 0.8, 1, 100000, 0.99, 100)
