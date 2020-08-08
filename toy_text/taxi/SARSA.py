@@ -63,6 +63,7 @@ def play(gamma, alpha, epsilon, n_episodes, decay, iterations):
     q = sarsa(gamma, alpha, epsilon, n_episodes, decay)
     env = gym.make('Taxi-v3')
     score = 0
+    tot = 0
     for i in range(iterations):
         print("Round {}:".format(i))
         s = env.reset()
@@ -77,10 +78,11 @@ def play(gamma, alpha, epsilon, n_episodes, decay, iterations):
             s1,r,d,_ = env.step(a)
             if r == 20:
                 score += 1
+            tot += r
             # Set new state
             s = s1
         print("{}\n".format(r))
-    print("The agent had succesful dropoffs {} percent of the time".format((score/iterations)*100))
+    print("The agent had succesful dropoffs {} percent of the time, with an average score of {}".format((score/iterations)*100, tot/iterations))
 
 # Train agent and test performance
 play(0.95, 0.8, 1, 50000, 0.999, 100)

@@ -3,13 +3,26 @@ import numpy as np
 import gym
 import colorama
 import time
+import sys
 
 colorama.init()
 
+np.set_printoptions(threshold=sys.maxsize)
+
+
     
-def sarsa(gamma, alpha, epsilon, n_episodes, decay):
+def Q_learn(gamma, alpha, epsilon, n_episodes, decay):
+    """
+    gamma: Discount rate
+    alpha: Learning rate
+    epsilon: Exploration rate
+    n_episodes: Number of training episodes
+    decay: Epsilon decay rate
+    iterations: Number of testing iterations
+    """
     env = gym.make('Taxi-v3')
     env.render()
+    max_steps = 500
     
     Q = np.zeros((env.observation_space.n, env.action_space.n))
     
@@ -23,31 +36,41 @@ def sarsa(gamma, alpha, epsilon, n_episodes, decay):
         else:
             action = np.argmax(Q[state])
 
-        while True:
+        i = 0
+        while i < max_steps:
 
+            if np.random.uniform(0,1) < epsilon:
+                action = env.action_space.sample() # take random action
+            else:
+                action = np.argmax(Q[state])
             # Get next state
             state2, reward, complete, _ = env.step(action)
+            
+            # Update Q
+            Q[state][action] = Q[state][action] + alpha*(reward + gamma*np.amax(Q[state2, :]) - Q[state][action])
 
-            if reward == 20:
-                Q[state][action] = Q[state][action] + alpha*(reward - Q[state][action])
-                break
-
-            elif complete:
+            if complete:
                 epsilon = epsilon*decay
                 break
             
-            # Update Q
-            else:
-                Q[state][action] = Q[state][action] + alpha*(reward + gamma*np.max(Q[state2]) - Q[state][action])
-            
             state = state2
-            
+            i += 1
+
     return Q
 
 def play(gamma, alpha, epsilon, n_episodes, decay, iterations):
-    q = sarsa(gamma, alpha, epsilon, n_episodes, decay)
+    """
+    gamma: Discount rate
+    alpha: Learning rate
+    epsilon: Exploration rate
+    n_episodes: Number of training episodes
+    decay: Epsilon decay rate
+    iterations: Number of testing iterations
+    """
+    q = Q_learn(gamma, alpha, epsilon, n_episodes, decay)
     env = gym.make('Taxi-v3')
     score = 0
+    tot = 0
     for i in range(iterations):
         print("Round {}:".format(i))
         s = env.reset()
@@ -62,9 +85,11 @@ def play(gamma, alpha, epsilon, n_episodes, decay, iterations):
             s1,r,d,_ = env.step(a)
             if r == 20:
                 score += 1
+            tot += r
             # Set new state
             s = s1
         print("{}\n".format(r))
-    print("The agent had succesful dropoffs {} percent of the time".format((score/iterations)*100))
+    print("The agent had succesful dropoffs {} percent of the time, with an average score of {}".format((score/iterations)*100, tot/iterations))
 
-play(0.95, 0.8, 1, 100000, 0.9999, 100)
+
+play(0.6, 0.7, 1, 50000, 0.99995, 100)
