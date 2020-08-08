@@ -7,10 +7,7 @@ import sys
 
 colorama.init()
 
-np.set_printoptions(threshold=sys.maxsize)
 
-
-    
 def Q_learn(gamma, alpha, epsilon, n_episodes, decay):
     """
     gamma: Discount rate
