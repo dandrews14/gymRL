@@ -15,7 +15,6 @@ def Q_learn(gamma, alpha, epsilon, n_episodes, decay):
     epsilon: Exploration rate
     n_episodes: Number of training episodes
     decay: Epsilon decay rate
-    iterations: Number of testing iterations
     """
     env = gym.make('Taxi-v3')
     env.render()
