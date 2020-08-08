@@ -9,7 +9,7 @@ Algorithms used:
 - Deep Deterministic Policy Gradients (DDPG)
 
 Libraries used:
-- Numpy
+- NumPy
 - gym
 - colorama
 

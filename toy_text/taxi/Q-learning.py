@@ -16,7 +16,7 @@ def sarsa(gamma, alpha, epsilon, n_episodes, decay):
     for ep in range(n_episodes):
         state = env.reset()
         if not ep%1000:
-            print(ep)
+            print(ep, "epsilon: {}".format(epsilon))
         
         if np.random.uniform(0,1) < epsilon:
             action = env.action_space.sample() # take random action
@@ -67,4 +67,4 @@ def play(gamma, alpha, epsilon, n_episodes, decay, iterations):
         print("{}\n".format(r))
     print("The agent had succesful dropoffs {} percent of the time".format((score/iterations)*100))
 
-play(0.95, 0.8, 1, 100000, 0.99, 100)
+play(0.95, 0.8, 1, 100000, 0.9999, 100)
