@@ -76,7 +76,7 @@ def play(gamma, alpha, epsilon, n_episodes, decay, iterations):
             a = np.argmax(q[s,:])
             # Get new state & reward from environment
             s1,r,d,_ = env.step(a)
-            if r == 20:
+            if r == 1:
                 score += 1
             tot += r
             # Set new state
