@@ -44,7 +44,7 @@ def Q_learn(gamma, alpha, epsilon, n_episodes, decay):
             state2, reward, complete, _ = env.step(action)
             
             # Update Q
-            Q[state][action] = Q[state][action] + alpha*(reward + gamma*np.max(Q[state2]) - Q[state][action])
+            Q[state][action] = Q[state][action] + alpha*(reward + gamma*Q[state2][np.argmax(Q[state2])] - Q[state][action])
 
             if complete:
                 epsilon = epsilon*decay
