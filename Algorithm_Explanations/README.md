@@ -15,7 +15,7 @@ possible action.
 each method has its own strengths and weaknesses. Q-learning is often preferable 
 because of its ability to find the optimal policy. The standard example used to display
 this is the [cliff walking experiment](https://github.com/cvhu/CliffWalking).
-    - Overall, both algorithms are good for simple, discrete state spaces. However,
+        - Overall, both algorithms are good for simple, discrete state spaces. However,
 they can struggle with larger and more complicated problems.
 ​
 - [Vanilla Policy Gradient/REINFORCE](https://spinningup.openai.com/en/latest/algorithms/vpg.html#background):
