@@ -1,5 +1,5 @@
 # A brief summary of what each RL algorithm does
-​
+
 ## [SARSA/Q-learning](https://www.cse.unsw.edu.au/~cs9417ml/RL1/algorithms.html): 
 - Overview
     - Both algorithms initialize a Q-table for the agent and then use Epsilon-Greedy 
@@ -17,7 +17,7 @@ because of its ability to find the optimal policy. The standard example used to 
 this is the [cliff walking experiment](https://github.com/cvhu/CliffWalking).
     - Overall, both algorithms are good for simple, discrete state spaces. However,
 they can struggle with larger and more complicated problems.
-​
+
 ## [Vanilla Policy Gradient/REINFORCE](https://spinningup.openai.com/en/latest/algorithms/vpg.html#background):
 - Overview
     - Policy Gradient algorithm.
@@ -27,8 +27,8 @@ the weights for the NN to increase the expected reward.
     - Update process is inefficient.
     - Algorithm can struggle with larger state spaces.
     - Fiarly simple implementation.
-​
-​
+
+
 ## [Deep Q-learning Network (DQN)](https://www.cs.toronto.edu/~vmnih/docs/dqn.pdf):
 - Overview
     - Similar to VPG, but the algorithm is focused on values instead of policies.
@@ -37,8 +37,8 @@ Then we use random batches of transitions from the buffer to calculate the loss 
 - Strenths/Weaknesses
     - Very strong algorithm.
     - Can be slow during training.
-​
-​
+
+
 ## [Actor Critic Models](https://arxiv.org/pdf/1602.01783.pdf):
 - Overview
      - One of the newer Deep RL Frameworks.
@@ -54,7 +54,7 @@ from the newer algorithm.
      - Reduces training complexity using Advantage.
      - A2C and A3C have various trade-offs in terms of speed/complexity based off of what type of computer architecture is being used.
      - Implementation can be complicated.
-​
+
 ## [Proximal Policy Optimization](https://spinningup.openai.com/en/latest/algorithms/ppo.html):
 - Overview
      - OpenAI's prefered RL algorithm.
@@ -70,7 +70,11 @@ The primary difference is that TRPO uses it as a contraint during updates, while
 - Strenths/Weaknesses
      - A fairly simple and successful algorithm.
      - Can occasionally get stuck in local optima.
-​
+
 ## [Deep Deterministic Policy Gradients (DDPG)](https://spinningup.openai.com/en/latest/algorithms/ddpg.html):
 - Overview
+    - Off-Policy.
+    - Essentially a combination of Actor Critic and DQN.
+    - Here's a [good explanation of the differences](https://www.linkedin.com/pulse/ddpg-dqn-which-use-ridhwanul-haque)
 - Strenths/Weaknesses
+    - DDPG is generally better with continuous action spaces than DQN.
