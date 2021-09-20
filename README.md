@@ -1,4 +1,4 @@
-# An attempt at solving all of OpenAI's Gym environments using Reinforcement Learning
+# An attempt at solving all of OpenAI's Gym environments using Reinforcement Learning (Winter 2021-Spring 2022)
 
 Algorithms used:
 - [SARSA/Q-learning](https://www.cse.unsw.edu.au/~cs9417ml/RL1/algorithms.html)
