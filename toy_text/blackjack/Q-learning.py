@@ -7,6 +7,14 @@ import sys
 
 colorama.init()
 
+def encodeState(s1,s2,s3):
+  output = s1
+  output *= 11
+  output += s2
+  output *= 2
+  output += s3
+  return output 
+
 
 def Q_learn(gamma, alpha, epsilon, n_episodes, decay):
     """
@@ -18,9 +26,9 @@ def Q_learn(gamma, alpha, epsilon, n_episodes, decay):
     """
     env = gym.make('Blackjack-v0')
     max_steps = 500
-    #print(env.observation_space[0].n, env.observation_space[1].n, env.observation_space[2].n, env.action_space.n)
+    print(env.observation_space[0].n, env.observation_space[1].n, env.observation_space[2].n, env.action_space.n)
     
-    Q = np.zeros((env.observation_space[0].n, env.observation_space[1].n, env.observation_space[2].n, env.action_space.n))
+    Q = np.zeros((env.observation_space[0].n * env.observation_space[1].n * env.observation_space[2].n, env.action_space.n))
 
     for ep in range(n_episodes):
         state = env.reset()
@@ -29,13 +37,14 @@ def Q_learn(gamma, alpha, epsilon, n_episodes, decay):
             state[2] = 1
         else:
             state[2] = 0
+        state = encodeState(state[0], state[1], state[2])
         if not ep%1000:
             print(ep, "epsilon: {}".format(epsilon))
         
         if np.random.uniform(0,1) < epsilon:
             action = env.action_space.sample() # take random action
         else:
-            action = np.argmax(Q[state[0]][state[1]][state[2]])
+            action = np.argmax(Q[state])
 
         i = 0
         while i < max_steps:
@@ -43,7 +52,7 @@ def Q_learn(gamma, alpha, epsilon, n_episodes, decay):
             if np.random.uniform(0,1) < epsilon:
                 action = env.action_space.sample() # take random action
             else:
-                action = np.argmax(Q[state[0]][state[1]][state[2]])
+                action = np.argmax(Q[state])
             
             # Get next state
             state2, reward, complete, _ = env.step(action)
@@ -54,11 +63,10 @@ def Q_learn(gamma, alpha, epsilon, n_episodes, decay):
             else:
                 state2[2] = 0
             #print(state2)
+            state2 = encodeState(state2[0], state2[1], state2[2])
             
             # Update Q
-            Q[state[0]][state[1]][state[2]][action] = Q[state[0]][state[1]][state[2]][action] \
-                + alpha*(reward + gamma*Q[state2[0]][state2[1]][state2[2]][np.argmax(Q[state2[0]][state2[1]][state2[2]])] \
-                - Q[state[0]][state[1]][state[2]][action])
+            Q[state][action] = Q[state][action] + alpha*(reward + gamma*Q[state2][np.argmax(Q[state2])] - Q[state][action])
 
             if complete:
                 epsilon = epsilon*decay
@@ -92,13 +100,14 @@ def play(gamma, alpha, epsilon, n_episodes, decay, iterations):
             s[2] = 1
         else:
             s[2] = 0
+        s = encodeState(s[0],s[1],s[2])
         d = False
         print(s)
         while d != True:
             #env.render()
             #time.sleep(0.5)
             # Choose action from Q table
-            a = np.argmax(q[s[0]][s[1]][s[2]])
+            a = np.argmax(q[s])
             # Get new state & reward from environment
             s1,r,d,_ = env.step(a)
             print(s1)
@@ -112,6 +121,7 @@ def play(gamma, alpha, epsilon, n_episodes, decay, iterations):
                 s[2] = 1
             else:
                 s[2] = 0
+            s = encodeState(s[0],s[1],s[2])
         print("{}\n".format(r))
     print("The agents average score was {}, and won {} percent of the time".format((score/iterations)*100, tot/iterations))
 
