@@ -26,7 +26,7 @@ def Q_learn(gamma, alpha, epsilon, n_episodes, decay):
     """
     env = gym.make('Blackjack-v0')
     max_steps = 500
-    print(env.observation_space[0].n, env.observation_space[1].n, env.observation_space[2].n, env.action_space.n)
+    #print(env.observation_space[0].n, env.observation_space[1].n, env.observation_space[2].n, env.action_space.n)
     
     Q = np.zeros((env.observation_space[0].n * env.observation_space[1].n * env.observation_space[2].n, env.action_space.n))
 
@@ -93,7 +93,7 @@ def play(gamma, alpha, epsilon, n_episodes, decay, iterations):
     score = 0
     tot = 0
     for i in range(iterations):
-        print("Round {}:".format(i))
+        #print("Round {}:".format(i))
         s = env.reset()
         s = list(s)
         if s[2]:
@@ -102,7 +102,7 @@ def play(gamma, alpha, epsilon, n_episodes, decay, iterations):
             s[2] = 0
         s = encodeState(s[0],s[1],s[2])
         d = False
-        print(s)
+        #print(s)
         while d != True:
             #env.render()
             #time.sleep(0.5)
@@ -110,7 +110,7 @@ def play(gamma, alpha, epsilon, n_episodes, decay, iterations):
             a = np.argmax(q[s])
             # Get new state & reward from environment
             s1,r,d,_ = env.step(a)
-            print(s1)
+            #print(s1)
             if r >= 1.0:
               tot += 1
             score += r
@@ -122,8 +122,8 @@ def play(gamma, alpha, epsilon, n_episodes, decay, iterations):
             else:
                 s[2] = 0
             s = encodeState(s[0],s[1],s[2])
-        print("{}\n".format(r))
-    print("The agents average score was {}, and won {} percent of the time".format((score/iterations)*100, tot/iterations))
+        #print("{}\n".format(r))
+    print("The agents average score was {}, and won {} percent of the time".format((score/iterations), (tot/iterations)*100))
 
 
-play(0.6, 0.7, 1, 50000, 0.99995, 100)
+play(1.0, 0.2, 1, 120000, 0.99998, 100000)
