@@ -9,9 +9,9 @@ Algorithms used:
 - [Deep Deterministic Policy Gradients (DDPG)](https://spinningup.openai.com/en/latest/algorithms/ddpg.html)
 
 Libraries used:
-- NumPy
-- gym
-- colorama
+- [NumPy](https://numpy.org/)
+- [gym](https://gym.openai.com/)
+- [colorama](https://pypi.org/project/colorama/)
 
 OpenAI Gym games solved:
 - Toy text:
