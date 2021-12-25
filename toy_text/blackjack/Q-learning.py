@@ -5,8 +5,6 @@ import colorama
 import time
 import sys
 
-colorama.init()
-
 def encodeState(s1,s2,s3):
   output = s1
   output *= 11
