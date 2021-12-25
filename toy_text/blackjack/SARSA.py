@@ -5,6 +5,10 @@ import colorama
 import time
 
 def encodeState(s1,s2,s3):
+  if s3:
+      s3 = 1
+  else:
+      s3 = 0
   output = s1
   output *= 11
   output += s2
@@ -26,15 +30,10 @@ def sarsa(gamma, alpha, epsilon, n_episodes, decay):
     
     for ep in range(n_episodes):
         state1 = env.reset()
-        state1 = list(state1)
-        if state1[2]:
-            state1[2] = 1
-        else:
-            state1[2] = 0
         state1 = encodeState(state1[0], state1[1], state1[2])
-        if not ep%1000:
+        if not ep%10000:
             print(ep, "epsilon: {}".format(epsilon))
-        
+
         if np.random.uniform(0,1) < epsilon:
             action1 = env.action_space.sample() # take random action
         else:
@@ -44,11 +43,6 @@ def sarsa(gamma, alpha, epsilon, n_episodes, decay):
 
             # Get next state
             state2, reward, complete, _ = env.step(action1)
-            state2 = list(state2)
-            if state2[2]:
-                state2[2] = 1
-            else:
-                state2[2] = 0
             state2 = encodeState(state2[0], state2[1], state2[2])
             
             # Choose next action
@@ -85,11 +79,6 @@ def play(gamma, alpha, epsilon, n_episodes, decay, iterations):
     for i in range(iterations):
         #print("Round {}:".format(i))
         s = env.reset()
-        s = list(s)
-        if s[2]:
-            s[2] = 1
-        else:
-            s[2] = 0
         s = encodeState(s[0],s[1],s[2])
         d = False
         #print(s)
@@ -106,14 +95,9 @@ def play(gamma, alpha, epsilon, n_episodes, decay, iterations):
             score += r
             # Set new state
             s = s1
-            s = list(s)
-            if s[2]:
-                s[2] = 1
-            else:
-                s[2] = 0
             s = encodeState(s[0],s[1],s[2])
         #print("{}\n".format(r))
     print("The agents average score was {}, and won {} percent of the time".format((score/iterations), (tot/iterations)*100))
 
 
-play(1.0, 0.2, 1, 120000, 0.99998, 100000)
+play(1.0, 0.1, 1, 500000, 0.999998, 100000)

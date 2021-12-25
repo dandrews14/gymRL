@@ -9,8 +9,8 @@ Dealer hits until 17 or greater.
 Tested on 100,000 iterations.
 
 SARSA Results:
-- 100% successfull pickups/drop-offs
-- Average score of 7.8
+- Wins 38.059% of the time
+- Average score of -0.15732
 
 Q-learning Results:
 - Wins 39.015% of the time
