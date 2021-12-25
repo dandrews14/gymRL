@@ -15,6 +15,6 @@ Libraries used:
 
 OpenAI Gym games solved:
 - Toy text:
-    - Taxi: SARSA, Q-learning
-    - Frozen Lake: SARSA, Q-learning
-    - Blackjack: SARSA, Q-learning
+    - [Taxi](https://gym.openai.com/envs/Taxi-v3/): SARSA, Q-learning
+    - [Frozen Lake](https://gym.openai.com/envs/FrozenLake-v0/): SARSA, Q-learning
+    - [Blackjack](https://gym.openai.com/envs/Blackjack-v0/): SARSA, Q-learning
