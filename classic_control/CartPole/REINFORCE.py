@@ -115,15 +115,7 @@ def reinforce(env, policy_estimator, num_episodes=2000,
                 
     return total_rewards
 
-
-#rewards = reinforce(env, pe)
-#window = 10
-#smoothed_rewards = [np.mean(rewards[i-window:i+1]) if i > window 
-#                    else np.mean(rewards[:i+1]) for i in range(len(rewards))]
-
-
 def simulator():
-
     reward = 0
     env = gym.make('CartPole-v1')
     s_0 = env.reset()
