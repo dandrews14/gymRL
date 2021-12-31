@@ -1,7 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import gym
-import sys
 
 import torch
 from torch import nn
