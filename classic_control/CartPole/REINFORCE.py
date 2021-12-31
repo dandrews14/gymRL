@@ -7,33 +7,9 @@ import torch
 from torch import nn
 from torch import optim
 
-print(sys.version)
-print(torch.__version__)
-print(torch.version.cuda)
-
-class policy_estimator():
-    def __init__(self, env):
-        self.n_inputs = env.observation_space.shape[0]
-        self.n_outputs = env.action_space.n
-        
-        # Define network
-        self.network = nn.Sequential(
-            nn.Linear(self.n_inputs, 16), 
-            nn.ReLU(), 
-            nn.Linear(16, self.n_outputs),
-            nn.Softmax(dim=-1))
-    
-    def predict(self, state):
-        action_probs = self.network(torch.FloatTensor(state))
+def pred(nw, state):
+        action_probs = nw(torch.FloatTensor(state))
         return action_probs
-
-
-env = gym.make('CartPole-v1')
-s = env.reset()
-pe = policy_estimator(env)
-print(pe.predict(s))
-print(pe.network(torch.FloatTensor(s)))
-
 
 def discount_rewards(rewards, gamma=0.99):
     r = np.array([gamma**i * rewards[i] 
@@ -55,7 +31,7 @@ def reinforce(env, policy_estimator, num_episodes=2000,
     batch_counter = 1
     
     # Define optimizer
-    optimizer = optim.Adam(policy_estimator.network.parameters(), 
+    optimizer = optim.Adam(policy_estimator.parameters(), 
                            lr=0.01)
     
     action_space = np.arange(env.action_space.n)
@@ -67,7 +43,7 @@ def reinforce(env, policy_estimator, num_episodes=2000,
         complete = False
         while complete == False:
             # Get actions and convert to numpy array
-            action_probs = policy_estimator.predict(s_0).detach().numpy()
+            action_probs = pred(policy_estimator,(s_0)).detach().numpy()
             action = np.random.choice(action_space, p=action_probs)
             s_1, r, complete, _ = env.step(action)
 
@@ -94,7 +70,7 @@ def reinforce(env, policy_estimator, num_episodes=2000,
                     
                     # Calculate loss
                     logprob = torch.log(
-                        policy_estimator.predict(state_tensor))
+                        pred(policy_estimator, state_tensor))
                     selected_logprobs = reward_tensor * \
                         logprob[np.arange(len(action_tensor)), action_tensor]
                     loss = -selected_logprobs.mean()
@@ -118,8 +94,18 @@ def reinforce(env, policy_estimator, num_episodes=2000,
 def simulator():
     reward = 0
     env = gym.make('CartPole-v1')
+
+    inputs = env.observation_space.shape[0]
+    outputs = env.action_space.n
+
+    pe = nn.Sequential(
+            nn.Linear(inputs, 16), 
+            nn.ReLU(), 
+            nn.Linear(16, outputs),
+            nn.Softmax(dim=-1))
+
     s_0 = env.reset()
-    pe = policy_estimator(env)
+    #pe = policy_estimator(env)
     rewards = reinforce(env, pe)
     action_space = np.arange(env.action_space.n)  
 
@@ -127,7 +113,7 @@ def simulator():
         s_0 = env.reset()
 
         while True:
-            action_probs = pe.predict(s_0).detach().numpy()
+            action_probs = pred(pe, s_0).detach().numpy()
             action = np.random.choice(action_space, p=action_probs)
             s_1, r, complete, _ = env.step(action)
             reward += r
