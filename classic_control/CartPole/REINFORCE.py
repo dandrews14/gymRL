@@ -1,3 +1,6 @@
+# https://towardsdatascience.com/learning-reinforcement-learning-reinforce-with-pytorch-5e8ad7fc7da0
+# https://proceedings.neurips.cc/paper/1999/file/464d828b85b0bed98e80ade0a5c43b0f-Paper.pdf
+
 import numpy as np
 import matplotlib.pyplot as plt
 import gym
@@ -7,6 +10,7 @@ from torch import nn
 from torch import optim
 
 def pred(nw, state):
+        # Use network and state to retrieve action probbilities
         action_probs = nw(torch.FloatTensor(state))
         return action_probs
 
@@ -19,7 +23,7 @@ def discount_rewards(rewards, gamma=0.99):
     return r - r.mean()
 
 
-def reinforce(env, policy_estimator, num_episodes=2000,
+def reinforce(env, policy_estimator, num_episodes=3000,
               batch_size=10, gamma=0.99):
 
     # Set up lists to hold results
@@ -88,42 +92,67 @@ def reinforce(env, policy_estimator, num_episodes=2000,
                 print("\rEp: {} Average of last 10: {:.2f}".format(
                     ep + 1, np.mean(total_rewards[-10:])), end="")
                 
-    return total_rewards
+    return
 
-def simulator():
+def simulator(num_sims):
+    # Total Reward Tracker
     reward = 0
+
+    # Initialize environment
     env = gym.make('CartPole-v1')
 
+    # Define NN Shape
     inputs = env.observation_space.shape[0]
     outputs = env.action_space.n
-
     pe = nn.Sequential(
-            nn.Linear(inputs, 16), 
+            nn.Linear(inputs, 32), 
+            nn.ReLU(), 
+            nn.Linear(32, 16), 
             nn.ReLU(), 
             nn.Linear(16, outputs),
             nn.Softmax(dim=-1))
 
-    s_0 = env.reset()
-    #pe = policy_estimator(env)
-    rewards = reinforce(env, pe)
+    # Train Neural Network
+    reinforce(env, pe)
     action_space = np.arange(env.action_space.n)  
 
-    for i in range(100):
+    # Run tests
+    print("")
+    for i in range(num_sims):
+
+        # Get Initial State
         s_0 = env.reset()
+        if i % 100 == 0:
+          print(f"Round: {i}")
+
 
         while True:
+            # Get Action Probabilities
             action_probs = pred(pe, s_0).detach().numpy()
+
+            # Choose Action Nondeterministically
             action = np.random.choice(action_space, p=action_probs)
+
+            # Take action
             s_1, r, complete, _ = env.step(action)
+
+            # Add reward to total rewards
             reward += r
+
+            # Check if simulations are complete
             if complete:
                 break
-            if i >= 95:
+
+            # Display last 5 simulations 
+            if i >= num_sims-5:
                 env.render()
+
+            # Update State
             s_0 = s_1
 
+    # Clean up and print results
     env.close()
     print("")
-    print(reward/100)
+    print(f"Average score over 1000 rounds: {reward/num_sims}")
 
-simulator()
+simulator(1000)
