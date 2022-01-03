@@ -2,11 +2,11 @@
 
 Agent tries to successfully balance a pole on a cart.
 
-Rewards: +1 for reaching end, 0 for all other actions
+Rewards: +1 for every step that the agent can balance the pole. Max score of 500.
 
-SARSA Results:
-- 73% successfull trips
-- Average score of 0.73
+REINFORCE Results:
+- Solved using ~3,000 episodes
+- Average score of 500.0 over 1,000 episodes
 
 Q-learning Results:
 - 73% successfull trips

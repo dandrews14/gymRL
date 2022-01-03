@@ -23,7 +23,7 @@ def discount_rewards(rewards, gamma=0.99):
     return r - r.mean()
 
 
-def reinforce(env, policy_estimator, num_episodes=3000,
+def reinforce(env, policy_estimator, num_episodes=5000,
               batch_size=10, gamma=0.99):
 
     # Set up lists to hold results
@@ -44,6 +44,9 @@ def reinforce(env, policy_estimator, num_episodes=3000,
         rewards = []
         actions = []
         complete = False
+        if np.mean(total_rewards[-250:]) >= 500.0:
+          break
+
         while complete == False:
             # Get actions and convert to numpy array
             action_probs = pred(policy_estimator,(s_0)).detach().numpy()
@@ -89,8 +92,8 @@ def reinforce(env, policy_estimator, num_episodes=3000,
                     batch_counter = 1
                     
                 # Print running average
-                print("\rEp: {} Average of last 10: {:.2f}".format(
-                    ep + 1, np.mean(total_rewards[-10:])), end="")
+                print("\rEp: {} Average of last 50: {:.2f}".format(
+                    ep + 1, np.mean(total_rewards[-50:])), end="")
                 
     return
 
