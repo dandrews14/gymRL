@@ -39,7 +39,7 @@ def calculate_loss(pol_est, states, actions, rewards):
     return loss
 
 def reinforce(env, policy_estimator, num_episodes=5000,
-              batch_size=10, gamma=1):
+              batch_size=10, gamma=0.99):
 
     # Set up batches to hold results
     total_rewards = []
@@ -68,8 +68,8 @@ def reinforce(env, policy_estimator, num_episodes=5000,
         complete = False
 
         # If model has converged, stop training
-        if np.mean(total_rewards[-250:]) >= 500.0:
-          break
+        #if np.mean(total_rewards[-250:]) >= 500.0:
+        #  break
 
         # Run episode
         while complete == False:
@@ -83,6 +83,9 @@ def reinforce(env, policy_estimator, num_episodes=5000,
             # Update environment
             s_1, r, complete, _ = env.step(action)
 
+            r = abs(s_1[0]+0.5)
+            env.render()
+            #print(s_1)
             # Add state, reward, action to buffer
             states.append(s_0)
             rewards.append(r)
@@ -140,7 +143,7 @@ def simulator(num_sims):
     reward = 0
 
     # Initialize environment
-    env = gym.make('CartPole-v1')
+    env = gym.make('MountainCar-v0')
 
     # Define NN Shape
     inputs = env.observation_space.shape[0]
