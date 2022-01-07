@@ -21,7 +21,6 @@ def discount_rewards(rewards, gamma):
     # Calculate cumulative sums for rewards
     r = r[::-1].cumsum()[::-1]
 
-    
     return r - r.mean()
 
 def calculate_loss(pol_est, states, actions, rewards):
@@ -39,7 +38,7 @@ def calculate_loss(pol_est, states, actions, rewards):
   return loss
 
 def reinforce(env, policy_estimator, num_episodes=5000,
-              batch_size=10, gamma=0.99):
+              batch_size=10, gamma=1):
 
     # Set up batches to hold results
     total_rewards = []
@@ -130,8 +129,8 @@ def reinforce(env, policy_estimator, num_episodes=5000,
                     batch_counter = 1
                     
                 # Print running average
-                print("\rEp: {} Average of last 50: {:.2f}".format(
-                    ep + 1, np.mean(total_rewards[-50:])), end="")
+                print("\rEp: {} Average of last 250: {:.2f}".format(
+                    ep + 1, np.mean(total_rewards[-250:])), end="")
                 
     return
 
