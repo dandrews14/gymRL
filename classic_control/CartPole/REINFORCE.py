@@ -21,21 +21,22 @@ def discount_rewards(rewards, gamma):
     # Calculate cumulative sums for rewards
     r = r[::-1].cumsum()[::-1]
 
+    # Normalize rewards
     return r - r.mean()
 
 def calculate_loss(pol_est, states, actions, rewards):
-  # Calculate log probabilities for actions
-  act_probs = pred(pol_est, states)
-  log_prob = torch.log(act_probs)
+    # Calculate log probabilities for actions
+    act_probs = pred(pol_est, states)
+    log_prob = torch.log(act_probs)
 
-  # Multiply rewards by the log probabilities of the actions taken by the model
-  selected_logprobs = rewards * log_prob[np.arange(len(actions)), actions]
-  
-  # Looking for local maximum
-  # See ~32:30 mark of https://www.youtube.com/watch?v=bRfUxQs6xIM&list=PLqYmG7hTraZBKeNJ-JE_eyJHZ7XgBoAyb&index=6
-  loss = -selected_logprobs.mean()
+    # Multiply rewards by the log probabilities of the actions taken by the model
+    selected_logprobs = rewards * log_prob[np.arange(len(actions)), actions]
+    
+    # Looking for local maximum
+    # See ~32:30 mark of https://www.youtube.com/watch?v=bRfUxQs6xIM&list=PLqYmG7hTraZBKeNJ-JE_eyJHZ7XgBoAyb&index=6
+    loss = -selected_logprobs.mean()
 
-  return loss
+    return loss
 
 def reinforce(env, policy_estimator, num_episodes=5000,
               batch_size=10, gamma=1):
