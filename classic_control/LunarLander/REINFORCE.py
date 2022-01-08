@@ -22,7 +22,7 @@ def discount_rewards(rewards, gamma):
     r = r[::-1].cumsum()[::-1]
 
     # Normalize rewards
-    return r #- r.mean()
+    return r - r.mean()
 
 def calculate_loss(pol_est, states, actions, rewards):
     # Calculate log probabilities for actions
@@ -38,7 +38,7 @@ def calculate_loss(pol_est, states, actions, rewards):
 
     return loss
 
-def reinforce(env, policy_estimator, num_episodes=50000,
+def reinforce(env, policy_estimator, num_episodes=5000,
               batch_size=10, gamma=1):
 
     # Set up batches to hold results
@@ -50,7 +50,7 @@ def reinforce(env, policy_estimator, num_episodes=50000,
     
     # Define optimizer
     optimizer = optim.Adam(policy_estimator.parameters(), 
-                           lr=0.1)
+                           lr=0.01)
     
     # Get number of actions
     num_actions = env.action_space.n
@@ -68,8 +68,8 @@ def reinforce(env, policy_estimator, num_episodes=50000,
         complete = False
 
         # If model has converged, stop training
-        #if np.mean(total_rewards[-250:]) >= 500.0:
-        #  break
+        if np.mean(total_rewards[-250:]) >= 500.0:
+          break
 
         # Run episode
         while complete == False:
@@ -79,18 +79,10 @@ def reinforce(env, policy_estimator, num_episodes=50000,
 
             # Choose action
             action = np.random.choice(num_actions, p=action_probs)
-            
+
             # Update environment
             s_1, r, complete, _ = env.step(action)
-            
-            if s_1[0] > -0.2:
-                r = 1
-            
-            elif s_1[1] >= 0.5:
-                r += 1000
 
-            #env.render()
-            #print(s_1)
             # Add state, reward, action to buffer
             states.append(s_0)
             rewards.append(r)
@@ -148,7 +140,7 @@ def simulator(num_sims):
     reward = 0
 
     # Initialize environment
-    env = gym.make('MountainCar-v0')
+    env = gym.make('CartPole-v1')
 
     # Define NN Shape
     inputs = env.observation_space.shape[0]
