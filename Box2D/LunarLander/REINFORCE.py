@@ -38,8 +38,8 @@ def calculate_loss(pol_est, states, actions, rewards):
 
     return loss
 
-def reinforce(env, policy_estimator, num_episodes=5000,
-              batch_size=10, gamma=1):
+def reinforce(env, policy_estimator, num_episodes=10000,
+              batch_size=5, gamma=0.9995):
 
     # Set up batches to hold results
     total_rewards = []
@@ -50,7 +50,7 @@ def reinforce(env, policy_estimator, num_episodes=5000,
     
     # Define optimizer
     optimizer = optim.Adam(policy_estimator.parameters(), 
-                           lr=0.01)
+                           lr=0.001)
     
     # Get number of actions
     num_actions = env.action_space.n
@@ -67,8 +67,7 @@ def reinforce(env, policy_estimator, num_episodes=5000,
         actions = []
         complete = False
 
-        # If model has converged, stop training
-        if np.mean(total_rewards[-250:]) >= 500.0:
+        if np.mean(total_rewards[-250:]) >= 200.0:
           break
 
         # Run episode
@@ -76,12 +75,17 @@ def reinforce(env, policy_estimator, num_episodes=5000,
 
             # Get action probabilities from model and convert to numpy array
             action_probs = pred(policy_estimator,(s_0)).detach().numpy()
+            action_probs = np.nan_to_num(action_probs)
 
             # Choose action
             action = np.random.choice(num_actions, p=action_probs)
 
             # Update environment
             s_1, r, complete, _ = env.step(action)
+
+            # Check up on model every 500 episodes
+            if ep % 500 == 0:
+                env.render()
 
             # Add state, reward, action to buffer
             states.append(s_0)
@@ -93,6 +97,10 @@ def reinforce(env, policy_estimator, num_episodes=5000,
             
             # If complete, batch data
             if complete:
+
+                # Close environment
+                if ep % 500 == 0:
+                    env.close()
 
                 # Append all states, rewards, actions to batch
                 batch_rewards.extend(discount_rewards(rewards, gamma))
@@ -140,7 +148,7 @@ def simulator(num_sims):
     reward = 0
 
     # Initialize environment
-    env = gym.make('CartPole-v1')
+    env = gym.make('LunarLander-v2')
 
     # Define NN Shape
     inputs = env.observation_space.shape[0]
@@ -148,7 +156,9 @@ def simulator(num_sims):
     pe = nn.Sequential(
             nn.Linear(inputs, 32), 
             nn.ReLU(), 
-            nn.Linear(32, 16), 
+            nn.Linear(32, 64), 
+            nn.ReLU(), 
+            nn.Linear(64, 16),
             nn.ReLU(), 
             nn.Linear(16, outputs),
             nn.Softmax(dim=-1))

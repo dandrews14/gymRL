@@ -18,3 +18,10 @@ OpenAI Gym games solved:
     - [Taxi](https://gym.openai.com/envs/Taxi-v3/): SARSA, Q-learning
     - [Frozen Lake](https://gym.openai.com/envs/FrozenLake-v0/): SARSA, Q-learning
     - [Blackjack](https://gym.openai.com/envs/Blackjack-v0/): SARSA, Q-learning
+
+- Classic Control:
+    - [Cart Pole](https://gym.openai.com/envs/CartPole-v1/): REINFORCE
+    - [Mountain Car](https://gym.openai.com/envs/MountainCar-v0/): REINFORCE
+
+- Box2D
+    - [Lunar Lander](https://gym.openai.com/envs/LunarLander-v2/): REINFORCE

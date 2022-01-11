@@ -13,5 +13,5 @@ Rewards:
 - Solved is 200 points
 
 REINFORCE Results:
-- Solved using ~3,000 episodes
-- Average score of 500.0 over 1,000 episodes
+- Solved using ~10,000 episodes
+- Average score of 84.2 over 1,000 episodes
