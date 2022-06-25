@@ -38,8 +38,8 @@ def calculate_loss(pol_est, states, actions, rewards):
 
     return loss
 
-def reinforce(env, policy_estimator, num_episodes=50000,
-              batch_size=10, gamma=1):
+def reinforce(env, policy_estimator, num_episodes=5000,
+              batch_size=10, gamma=0.995):
 
     # Set up batches to hold results
     total_rewards = []
@@ -50,7 +50,7 @@ def reinforce(env, policy_estimator, num_episodes=50000,
     
     # Define optimizer
     optimizer = optim.Adam(policy_estimator.parameters(), 
-                           lr=0.1)
+                           lr=0.02)
     
     # Get number of actions
     num_actions = env.action_space.n
@@ -68,7 +68,7 @@ def reinforce(env, policy_estimator, num_episodes=50000,
         complete = False
 
         # If model has converged, stop training
-        #if np.mean(total_rewards[-250:]) >= 500.0:
+        #if np.mean(total_rewards[-250:]) >= 50000.0:
         #  break
 
         # Run episode
@@ -83,11 +83,39 @@ def reinforce(env, policy_estimator, num_episodes=50000,
             # Update environment
             s_1, r, complete, _ = env.step(action)
             
-            if s_1[0] > -0.2:
-                r = 1
-            
-            elif s_1[1] >= 0.5:
+            # Incentive 1
+            #print(s_1)
+            #if s_1[0] > 0:
+            #    r = 1
+            #
+            #if s_1[1] >= 0.05:
+            #    r += 1
+
+            # Incentive 2
+            """
+            r += max(0, s_1[1]/0.07)
+
+            r += max(0, (s_1[0]+0.8)/2)
+            """
+
+            # Incentive 3
+            r += abs(s_1[1]*100)
+
+            #r += max(0, (s_1[0]+0.8)/200)
+
+            #if s_1[0] >= -0.2:
+            #    r += 1
+
+            if s_1[0] >= 0.0:
+                r += s_1[0]*100
+                print(r)
+
+
+            if s_1[0] >= 0.2:
                 r += 1000
+
+            if s_1[0] >= 0.5:
+                r += 10000
 
             #env.render()
             #print(s_1)
@@ -154,11 +182,11 @@ def simulator(num_sims):
     inputs = env.observation_space.shape[0]
     outputs = env.action_space.n
     pe = nn.Sequential(
-            nn.Linear(inputs, 32), 
+            nn.Linear(inputs, 16), 
             nn.ReLU(), 
-            nn.Linear(32, 16), 
+            nn.Linear(16, 8), 
             nn.ReLU(), 
-            nn.Linear(16, outputs),
+            nn.Linear(8, outputs),
             nn.Softmax(dim=-1))
 
     # Train Neural Network
