@@ -10,18 +10,18 @@ Algorithms used:
 
 Libraries used:
 - [NumPy](https://numpy.org/)
-- [gym](https://gym.openai.com/)
+- [gym](https://www.gymlibrary.ml/)
 - [colorama](https://pypi.org/project/colorama/)
 
 OpenAI Gym games solved:
 - Toy text:
-    - [Taxi](https://gym.openai.com/envs/Taxi-v3/): SARSA, Q-learning
-    - [Frozen Lake](https://gym.openai.com/envs/FrozenLake-v0/): SARSA, Q-learning
-    - [Blackjack](https://gym.openai.com/envs/Blackjack-v0/): SARSA, Q-learning
+    - [Taxi](https://www.gymlibrary.ml/environments/toy_text/taxi/): SARSA, Q-learning
+    - [Frozen Lake](https://www.gymlibrary.ml/environments/toy_text/frozen_lake/): SARSA, Q-learning
+    - [Blackjack](https://www.gymlibrary.ml/environments/toy_text/blackjack/): SARSA, Q-learning
 
 - Classic Control:
-    - [Cart Pole](https://gym.openai.com/envs/CartPole-v1/): REINFORCE
-    - [Mountain Car](https://gym.openai.com/envs/MountainCar-v0/): REINFORCE
+    - [Cart Pole](https://www.gymlibrary.ml/environments/classic_control/cart_pole/): REINFORCE
+    - [Mountain Car](https://www.gymlibrary.ml/environments/classic_control/mountain_car/): REINFORCE
 
 - Box2D
-    - [Lunar Lander](https://gym.openai.com/envs/LunarLander-v2/): REINFORCE
+    - [Lunar Lander](https://www.gymlibrary.ml/environments/box2d/lunar_lander/): REINFORCE

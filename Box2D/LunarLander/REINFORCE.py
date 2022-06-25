@@ -38,8 +38,8 @@ def calculate_loss(pol_est, states, actions, rewards):
 
     return loss
 
-def reinforce(env, policy_estimator, num_episodes=10000,
-              batch_size=5, gamma=0.9995):
+def reinforce(env, policy_estimator, num_episodes=8000,
+              batch_size=10, gamma=0.99):
 
     # Set up batches to hold results
     total_rewards = []
@@ -50,7 +50,7 @@ def reinforce(env, policy_estimator, num_episodes=10000,
     
     # Define optimizer
     optimizer = optim.Adam(policy_estimator.parameters(), 
-                           lr=0.001)
+                           lr=0.0005)
     
     # Get number of actions
     num_actions = env.action_space.n
@@ -67,7 +67,7 @@ def reinforce(env, policy_estimator, num_episodes=10000,
         actions = []
         complete = False
 
-        if np.mean(total_rewards[-250:]) >= 200.0:
+        if np.mean(total_rewards[-50:]) >= 200.0:
           break
 
         # Run episode
@@ -138,8 +138,8 @@ def reinforce(env, policy_estimator, num_episodes=10000,
                     batch_counter = 1
                     
                 # Print running average
-                print("\rEp: {} Average of last 250: {:.2f}".format(
-                    ep + 1, np.mean(total_rewards[-250:])), end="")
+                print("\rEp: {} Average of last 50: {:.2f}".format(
+                    ep + 1, np.mean(total_rewards[-50:])), end="")
                 
     return
 
@@ -152,15 +152,17 @@ def simulator(num_sims):
 
     # Define NN Shape
     inputs = env.observation_space.shape[0]
+    print(inputs)
     outputs = env.action_space.n
+    print(outputs)
     pe = nn.Sequential(
-            nn.Linear(inputs, 32), 
+            nn.Linear(inputs, 16), 
             nn.ReLU(), 
-            nn.Linear(32, 64), 
+            nn.Linear(16, 8), 
             nn.ReLU(), 
-            nn.Linear(64, 16),
+            nn.Linear(8, 8),
             nn.ReLU(), 
-            nn.Linear(16, outputs),
+            nn.Linear(8, outputs),
             nn.Softmax(dim=-1))
 
     # Train Neural Network
