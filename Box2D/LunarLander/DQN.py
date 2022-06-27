@@ -9,12 +9,12 @@ import gym
 
 # Hyper Parameters
 BATCH_SIZE = 32
-LR = 0.01                   # learning rate
-EPSILON = 0.9               # greedy policy
-GAMMA = 0.9                 # reward discount
+LR = 0.005                   # learning rate
+EPSILON = 0.99               # greedy policy
+GAMMA = 0.95                 # reward discount
 TARGET_REPLACE_ITER = 100   # target update frequency
 MEMORY_CAPACITY = 2000
-env = gym.make('MountainCar-v0')
+env = gym.make('LunarLander-v2')
 env = env.unwrapped
 N_ACTIONS = env.action_space.n
 N_STATES = env.observation_space.shape[0]
@@ -45,11 +45,12 @@ class DQN(object):
         self.memory = np.zeros((MEMORY_CAPACITY, N_STATES * 2 + 2))     # initialize memory
         self.optimizer = torch.optim.Adam(self.eval_net.parameters(), lr=LR)
         self.loss_func = nn.MSELoss()
+        self.epsilon = EPSILON
 
     def choose_action(self, x):
         x = torch.unsqueeze(torch.FloatTensor(x), 0)
         # input only one sample
-        if np.random.uniform() < EPSILON:   # greedy
+        if np.random.uniform() < self.epsilon:   # greedy
             actions_value = self.eval_net.forward(x)
             action = torch.max(actions_value, 1)[1].data.numpy()
             action = action[0] if ENV_A_SHAPE == 0 else action.reshape(ENV_A_SHAPE)  # return the argmax index
@@ -91,9 +92,10 @@ class DQN(object):
 
 def train(dqn):
     print('\nCollecting experience...')
-    for i_episode in range(400):
+    for i_episode in range(1000):
         s = env.reset()
         ep_r = 0
+        dqn.epsilon *= 0.9975
         while True:
             if not i_episode % 100:
                 env.render()
@@ -101,10 +103,6 @@ def train(dqn):
 
             # take action
             s_, r, done, info = env.step(a)
-            
-            r += max(0,s_[1])
-            if s_[0] >= 0.2:
-                r += 1000
 
             # modify the reward
 
@@ -115,7 +113,7 @@ def train(dqn):
                 dqn.learn()
                 if done:
                     print('Ep: ', i_episode,
-                          '| Ep_r: ', round(ep_r, 2))
+                          '| Ep_r: ', round(ep_r, 2), " | EP", dqn.epsilon)
 
             if done:
                 if not i_episode % 100:
@@ -130,7 +128,7 @@ def simulator(num_sims):
     reward = 0
 
     # Initialize environment
-    env = gym.make('MountainCar-v0')
+    env = gym.make('LunarLander-v2')
 
     # Define NN Shape
     dqn = DQN()
