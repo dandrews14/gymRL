@@ -23,7 +23,7 @@ def encodeState(s1,s2,s3,s4):
 
 class Deck:
     def __init__(self):
-        self.cards = [1,2,3,4,5,6,7,8,9,10,11,12,13]*24
+        self.cards = [11,2,3,4,5,6,7,8,9,10,10,10,10]*24
         self.count = 10
 
     def shuff(self):
@@ -33,12 +33,12 @@ class Deck:
         try:
             c = cards.pop()
         except:
-            self.cards = [1,2,3,4,5,6,7,8,9,10,11,12,13]*24
+            self.cards = [11,2,3,4,5,6,7,8,9,10,10,10,10]*24
             self.shuff()
             c = self.cards.pop()
         if 2 <= c <= 6:
             self.count += 1
-        elif c == 1 or 10 <= c <= 13:
+        elif c == 11 or c == 10:
             self.count -= 1
         self.count = max(0,self.count)
         self.count = min(20,self.count)
@@ -56,7 +56,7 @@ def Q_learn(gamma, alpha, epsilon, n_episodes, decay, deck):
     """
     max_steps = 500
     
-    Q = np.zeros((33 * 12 * 2 * 30, 2))
+    Q = np.zeros((32 * 11 * 2 * 22, 2))
     for ep in range(n_episodes):
 
         # Deal in Dealer
@@ -73,7 +73,7 @@ def Q_learn(gamma, alpha, epsilon, n_episodes, decay, deck):
 
         s1 = sum(player)
 
-        s3 = 1 if 1 in player else 0
+        s3 = 1 if 11 in player else 0
 
         s4 = deck.count
 
@@ -98,8 +98,14 @@ def Q_learn(gamma, alpha, epsilon, n_episodes, decay, deck):
             if action == 1:
                 player.append(deck.draw())
                 if sum(player) > 21:
-                    complete = 1
-                    reward = -1
+                    if s3:
+                        player[player.index(11)] = 1
+                        complete = 0
+                        reward = 0
+                        s3 = 0
+                    else:
+                        complete = 1
+                        reward = -1
                 elif sum(player) == 21:
                     if sum(dealer) != 21:
                         reward = 1
@@ -125,7 +131,7 @@ def Q_learn(gamma, alpha, epsilon, n_episodes, decay, deck):
             #state2, reward, complete, _ = env.step(action)
             s1 = sum(player)
 
-            s3 = 1 if 1 in player else 0
+            s3 = 1 if 11 in player else 0
 
             s4 = deck.count
 
@@ -176,7 +182,7 @@ def play(gamma, alpha, epsilon, n_episodes, decay, iterations):
 
         s1 = sum(player)
 
-        s3 = 1 if 1 in player else 0
+        s3 = 1 if 11 in player else 0
 
         s4 = deck.count
 
@@ -184,16 +190,25 @@ def play(gamma, alpha, epsilon, n_episodes, decay, iterations):
 
         #s = encodeState(s[0],s[1],s[2])
         d = False
-        print(i)
+        if not i % 1000:
+            print(i, "######################")
         while not d:
             # Choose action from Q table
             a = np.argmax(q[s])
+            if not i % 1000:
+                print(s1,s2,s3,s4)
 
             if a == 1:
                 player.append(deck.draw())
                 if sum(player) > 21:
-                    complete = 1
-                    reward = -1
+                    if s3:
+                        player[player.index(11)] = 1
+                        complete = 0
+                        reward = 0
+                        s3 = 0
+                    else:
+                        complete = 1
+                        reward = -1
                 elif sum(player) == 21:
                     if sum(dealer) != 21:
                         reward = 1
@@ -223,7 +238,7 @@ def play(gamma, alpha, epsilon, n_episodes, decay, iterations):
 
             s1 = sum(player)
 
-            s3 = 1 if 1 in player else 0
+            s3 = 1 if 11 in player else 0
 
             s4 = deck.count
 
@@ -232,4 +247,4 @@ def play(gamma, alpha, epsilon, n_episodes, decay, iterations):
     print("The agents average score was {}, and won {} percent of the time".format((score/iterations), (tot/iterations)*100))
 
 
-play(1.0, 0.1, 1, 500000, 0.999998, 100000)
+play(1.0, 0.1, 1, 100000, 0.999998, 100000)
