@@ -55,8 +55,9 @@ def Q_learn(gamma, alpha, epsilon, n_episodes, decay, deck):
     decay: Epsilon decay rate
     """
     max_steps = 500
+    deck.shuff()
     
-    Q = np.zeros((32 * 11 * 2 * 22, 2))
+    Q = np.zeros((32 * 11 * 2 * 24, 2))
     for ep in range(n_episodes):
 
         # Deal in Dealer
@@ -98,8 +99,11 @@ def Q_learn(gamma, alpha, epsilon, n_episodes, decay, deck):
             if action == 1:
                 player.append(deck.draw())
                 if sum(player) > 21:
-                    if s3:
+                    if s3 == 1:
+                        #print("***************")
+                        #print(player)
                         player[player.index(11)] = 1
+                        #print(player)
                         complete = 0
                         reward = 0
                         s3 = 0
@@ -118,7 +122,24 @@ def Q_learn(gamma, alpha, epsilon, n_episodes, decay, deck):
             else:
                 while sum(dealer) < 17:
                     dealer.append(deck.draw())
-                if sum(dealer) > 21 or sum(dealer) < sum(player):
+                if sum(dealer) > 21:
+                    if 11 in dealer:
+                        dealer[dealer.index(11)] = 1
+                        while sum(dealer) < 17:
+                            dealer.append(deck.draw())
+                        if sum(dealer) > 21:
+                            reward = 1
+                        elif sum(dealer) < sum(player):
+                            reward = 1
+                        elif sum(dealer) == sum(player):
+                            reward = 0
+                        else:
+                            #print("#################################")
+                            #print(sum(dealer), sum(player))
+                            reward = -1
+                    else:
+                        reward = 1
+                elif sum(dealer) < sum(player):
                     reward = 1
                 elif sum(dealer) == sum(player):
                     reward = 0
@@ -165,6 +186,11 @@ def play(gamma, alpha, epsilon, n_episodes, decay, iterations):
     score = 0
     tot = 0
     deck = Deck()
+    deck.shuff()
+    over5 = 0
+    under5 = 0
+    o5w = 0
+    u5w = 0
     for i in range(iterations):
         #s = env.reset()
 
@@ -201,8 +227,12 @@ def play(gamma, alpha, epsilon, n_episodes, decay, iterations):
             if a == 1:
                 player.append(deck.draw())
                 if sum(player) > 21:
-                    if s3:
+                    if s3 == 1:
+                        #print("***************")
+                        #print(player)
                         player[player.index(11)] = 1
+                        #print(player)
+                        #print(deck.count)
                         complete = 0
                         reward = 0
                         s3 = 0
@@ -216,12 +246,26 @@ def play(gamma, alpha, epsilon, n_episodes, decay, iterations):
                         reward = 0
                     complete = 1
                 else:
+                    reward = 0
                     complete = 0
             else:
                 while sum(dealer) < 17:
                     dealer.append(deck.draw())
-                if sum(dealer) > 21 or sum(dealer) < sum(player):
-                    reward = 1
+                if sum(dealer) > 21:
+                    if 11 in dealer:
+                        dealer[dealer.index(11)] = 1
+                        while sum(dealer) < 17:
+                            dealer.append(deck.draw())
+                        if sum(dealer) > 21:
+                            reward = 1
+                        elif sum(dealer) < sum(player):
+                            reward = 1
+                        elif sum(dealer) == sum(player):
+                            reward = 0
+                        else:
+                            reward = -1
+                    else:
+                        reward = 1
                 elif sum(dealer) == sum(player):
                     reward = 0
                 else:
@@ -231,8 +275,20 @@ def play(gamma, alpha, epsilon, n_episodes, decay, iterations):
             d = complete
             # Get new state & reward from environment
             #s1,r,d,_ = env.step(a)
+            if d == 1:
+                if deck.count >= 15:
+                    over5 += 1
+                elif deck.count <= 5:
+                    under5 += 1
+            if not i % 1000:
+                print(reward)
             if reward >= 1.0:
-              tot += 1
+                #print(deck.count)
+                tot += 1
+                if deck.count >= 15:
+                    o5w += 1
+                elif deck.count <= 5:
+                    u5w += 1
             score += reward
             # Set new state
 
@@ -245,6 +301,7 @@ def play(gamma, alpha, epsilon, n_episodes, decay, iterations):
             #s = s1
             s = encodeState(s1,s2,s3,s4)
     print("The agents average score was {}, and won {} percent of the time".format((score/iterations), (tot/iterations)*100))
+    print(f"Over = {o5w/over5}", f"Under = {u5w/under5}")
 
 
-play(1.0, 0.1, 1, 100000, 0.999998, 100000)
+play(1.0, 0.1, 1, 50000, 0.999998, 10000)
