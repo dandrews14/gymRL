@@ -202,7 +202,9 @@ def play(gamma, alpha, epsilon, n_episodes, decay, iterations):
     q = Q_learn(gamma, alpha, epsilon, n_episodes, decay, Deck())
     env = gym.make('Blackjack-v0')
     score = 0
-    tot = 0
+    wins = 0
+    losses = 0
+    draws = 0
     deck = Deck()
     game = Game()
     over5 = 0
@@ -215,10 +217,10 @@ def play(gamma, alpha, epsilon, n_episodes, decay, iterations):
 
         s = encodeState(s1,s2,s3,s4)
 
-        d = False
+        complete = 0
         if not i % 1000:
             print(i, "######################")
-        while not d:
+        while not complete:
             # Choose action from Q table
             a = np.argmax(q[s])
             if not i % 1000:
@@ -242,8 +244,13 @@ def play(gamma, alpha, epsilon, n_episodes, decay, iterations):
                     under5 += 1
             if not i % 1000:
                 print(reward)
-            if complet:
-                tot += reward
+            if complete:
+                if reward == 1:
+                    wins += 1
+                elif reward == 0:
+                    draws += 1
+                else:
+                    losses += 1
                 if deck.count >= 15 and reward == 1:
                     o5w += 1
                 elif deck.count <= 5 and reward == 1:
@@ -253,7 +260,7 @@ def play(gamma, alpha, epsilon, n_episodes, decay, iterations):
 
             #s = s1
             s = encodeState(s1,s2,s3,s4)
-    print("The agents average score was {}, and won {} percent of the time".format((score/iterations), (tot/iterations)*100))
+    print(f"The agents average score was {((wins-losses)/iterations)}, and won {wins} times, lost {losses} times, drawed {draws} times")
     print(f"Over = {o5w/over5}", f"Under = {u5w/under5}")
 
 
