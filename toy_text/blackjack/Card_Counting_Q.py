@@ -12,11 +12,21 @@ def encodeState(s1,s2,s3,s4):
       s3 = 1
   else:
       s3 = 0
+
+  if s4 <= -5:
+    s4 = 0
+  elif s4 <= 0:
+    s4 = 1
+  elif s4 >= 5:
+    s4 = 3
+  else:
+    s4 = 2
+
   output = s1
-  output *= 21
-  output += s4
   output *= 11
   output += s2
+  output *= 4
+  output += s4
   output *= 2
   output += s3
   return output 
@@ -24,7 +34,8 @@ def encodeState(s1,s2,s3,s4):
 class Deck:
     def __init__(self):
         self.cards = [11,2,3,4,5,6,7,8,9,10,10,10,10]*24
-        self.count = 10
+        random.shuffle(self.cards)
+        self.count = 0
 
     def shuff(self):
         random.shuffle(self.cards)
@@ -40,9 +51,82 @@ class Deck:
             self.count += 1
         elif c == 11 or c == 10:
             self.count -= 1
-        self.count = max(0,self.count)
-        self.count = min(20,self.count)
         return c
+
+
+class Game:
+    def __init__(self):
+        self.deck = Deck()
+        self.count = 0
+
+    def hit(self, player, deck, dealer, s3):
+        player.append(deck.draw())
+        if sum(player) > 21:
+            if s3 == 1:
+                player[player.index(11)] = 1
+                complete = 0
+                reward = 0
+                s3 = 0
+            else:
+                complete = 1
+                reward = -1
+        elif sum(player) == 21:
+            if sum(dealer) != 21:
+                reward = 1
+            else:
+                reward = 0
+            complete = 1
+        else:
+            reward = 0
+            complete = 0
+        return player, reward, complete
+
+    def stand(self, player, dealer, deck):
+        while sum(dealer) < 17:
+            dealer.append(deck.draw())
+        if sum(dealer) > 21:
+            if 11 in dealer:
+                dealer[dealer.index(11)] = 1
+                while sum(dealer) < 17:
+                    dealer.append(deck.draw())
+                if sum(dealer) > 21:
+                    reward = 1
+                elif sum(dealer) < sum(player):
+                    reward = 1
+                elif sum(dealer) == sum(player):
+                    reward = 0
+                else:
+                    reward = -1
+            else:
+                reward = 1
+        elif sum(dealer) < sum(player):
+            reward = 1
+        elif sum(dealer) == sum(player):
+            reward = 0
+        else:
+            reward = -1
+
+        complete = 1
+
+        return reward, complete
+
+    def start(self, deck):
+        # Deal in Dealer
+        dealer = []
+        dealer.append(deck.draw())
+        dealer.append(deck.draw())
+
+        # Deal in Player
+        player = []
+        player.append(deck.draw())
+        player.append(deck.draw())
+
+        s1 = sum(player)
+        s2 = dealer[1]
+        s3 = 1 if 11 in player else 0
+        s4 = deck.count
+
+        return player, dealer, s1, s2, s3, s4
 
 
 
@@ -55,38 +139,23 @@ def Q_learn(gamma, alpha, epsilon, n_episodes, decay, deck):
     decay: Epsilon decay rate
     """
     max_steps = 500
-    deck.shuff()
+
+    game = Game()
     
-    Q = np.zeros((32 * 11 * 2 * 24, 2))
+    Q = np.zeros((32 * 12 * 2 * 4, 2))
     for ep in range(n_episodes):
 
-        # Deal in Dealer
-        dealer = []
-        dealer.append(deck.draw())
-        dealer.append(deck.draw())
-
-        s2 = dealer[1]
-
-        # Deal in Player
-        player = []
-        player.append(deck.draw())
-        player.append(deck.draw())
-
-        s1 = sum(player)
-
-        s3 = 1 if 11 in player else 0
-
-        s4 = deck.count
+        player, dealer, s1, s2, s3, s4 = game.start(deck)
 
         state = encodeState(s1,s2,s3,s4)
         
         if not ep%10000:
             print(ep, "epsilon: {}".format(epsilon))
         
-        if np.random.uniform(0,1) < epsilon:
-            action =  random.randint(0, 1) # take random action
-        else:
-            action = np.argmax(Q[state])
+        #if np.random.uniform(0,1) < epsilon:
+        #    action =  random.randint(0, 1) # take random action
+        #else:
+        #    action = np.argmax(Q[state])
 
         i = 0
         while i < max_steps:
@@ -97,65 +166,14 @@ def Q_learn(gamma, alpha, epsilon, n_episodes, decay, deck):
                 action = np.argmax(Q[state])
             
             if action == 1:
-                player.append(deck.draw())
-                if sum(player) > 21:
-                    if s3 == 1:
-                        #print("***************")
-                        #print(player)
-                        player[player.index(11)] = 1
-                        #print(player)
-                        complete = 0
-                        reward = 0
-                        s3 = 0
-                    else:
-                        complete = 1
-                        reward = -1
-                elif sum(player) == 21:
-                    if sum(dealer) != 21:
-                        reward = 1
-                    else:
-                        reward = 0
-                    complete = 1
-                else:
-                    reward = 0
-                    complete = 0
+                player, reward, complete = game.hit(player, deck, dealer, s3)
+                s1 = sum(player)
+
+                s3 = 1 if 11 in player else 0
             else:
-                while sum(dealer) < 17:
-                    dealer.append(deck.draw())
-                if sum(dealer) > 21:
-                    if 11 in dealer:
-                        dealer[dealer.index(11)] = 1
-                        while sum(dealer) < 17:
-                            dealer.append(deck.draw())
-                        if sum(dealer) > 21:
-                            reward = 1
-                        elif sum(dealer) < sum(player):
-                            reward = 1
-                        elif sum(dealer) == sum(player):
-                            reward = 0
-                        else:
-                            #print("#################################")
-                            #print(sum(dealer), sum(player))
-                            reward = -1
-                    else:
-                        reward = 1
-                elif sum(dealer) < sum(player):
-                    reward = 1
-                elif sum(dealer) == sum(player):
-                    reward = 0
-                else:
-                    reward = -1
-
-                complete = 1
-
-            # Get next state
-            #state2, reward, complete, _ = env.step(action)
-            s1 = sum(player)
-
-            s3 = 1 if 11 in player else 0
+                reward, complete = game.stand(player, dealer, deck)
 
             s4 = deck.count
-
 
             state2 = encodeState(s1,s2,s3,s4)
             
@@ -186,35 +204,17 @@ def play(gamma, alpha, epsilon, n_episodes, decay, iterations):
     score = 0
     tot = 0
     deck = Deck()
-    deck.shuff()
+    game = Game()
     over5 = 0
     under5 = 0
     o5w = 0
     u5w = 0
     for i in range(iterations):
-        #s = env.reset()
 
-        # Deal in Dealer
-        dealer = []
-        dealer.append(deck.draw())
-        dealer.append(deck.draw())
-
-        s2 = dealer[1]
-
-        # Deal in Player
-        player = []
-        player.append(deck.draw())
-        player.append(deck.draw())
-
-        s1 = sum(player)
-
-        s3 = 1 if 11 in player else 0
-
-        s4 = deck.count
+        player, dealer, s1, s2, s3, s4 = game.start(deck)
 
         s = encodeState(s1,s2,s3,s4)
 
-        #s = encodeState(s[0],s[1],s[2])
         d = False
         if not i % 1000:
             print(i, "######################")
@@ -225,76 +225,29 @@ def play(gamma, alpha, epsilon, n_episodes, decay, iterations):
                 print(s1,s2,s3,s4)
 
             if a == 1:
-                player.append(deck.draw())
-                if sum(player) > 21:
-                    if s3 == 1:
-                        #print("***************")
-                        #print(player)
-                        player[player.index(11)] = 1
-                        #print(player)
-                        #print(deck.count)
-                        complete = 0
-                        reward = 0
-                        s3 = 0
-                    else:
-                        complete = 1
-                        reward = -1
-                elif sum(player) == 21:
-                    if sum(dealer) != 21:
-                        reward = 1
-                    else:
-                        reward = 0
-                    complete = 1
-                else:
-                    reward = 0
-                    complete = 0
-            else:
-                while sum(dealer) < 17:
-                    dealer.append(deck.draw())
-                if sum(dealer) > 21:
-                    if 11 in dealer:
-                        dealer[dealer.index(11)] = 1
-                        while sum(dealer) < 17:
-                            dealer.append(deck.draw())
-                        if sum(dealer) > 21:
-                            reward = 1
-                        elif sum(dealer) < sum(player):
-                            reward = 1
-                        elif sum(dealer) == sum(player):
-                            reward = 0
-                        else:
-                            reward = -1
-                    else:
-                        reward = 1
-                elif sum(dealer) == sum(player):
-                    reward = 0
-                else:
-                    reward = -1
+                player, reward, complete = game.hit(player, deck, dealer, s3)
+                s1 = sum(player)
 
-                complete = 1
-            d = complete
+                s3 = 1 if 11 in player else 0
+            else:
+                reward, complete = game.stand(player, dealer, deck)
+            #d = complete
+
             # Get new state & reward from environment
             #s1,r,d,_ = env.step(a)
-            if d == 1:
+            if complete:
                 if deck.count >= 15:
                     over5 += 1
                 elif deck.count <= 5:
                     under5 += 1
             if not i % 1000:
                 print(reward)
-            if reward >= 1.0:
-                #print(deck.count)
-                tot += 1
-                if deck.count >= 15:
+            if complet:
+                tot += reward
+                if deck.count >= 15 and reward == 1:
                     o5w += 1
-                elif deck.count <= 5:
+                elif deck.count <= 5 and reward == 1:
                     u5w += 1
-            score += reward
-            # Set new state
-
-            s1 = sum(player)
-
-            s3 = 1 if 11 in player else 0
 
             s4 = deck.count
 
