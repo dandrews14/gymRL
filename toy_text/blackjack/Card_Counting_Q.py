@@ -15,9 +15,9 @@ def encodeState(s1,s2,s3,s4):
 
   if s4 <= -8:
     s4 = 0
-  elif s4 <= 0:
+  elif s4 <= 4:
     s4 = 1
-  elif s4 >= 8:
+  elif s4 >= 12:
     s4 = 3
   else:
     s4 = 2
@@ -36,6 +36,7 @@ class Deck:
         self.cards = [11,2,3,4,5,6,7,8,9,10,10,10,10]*24
         random.shuffle(self.cards)
         self.count = 0
+        self.TC = 0
 
     def shuff(self):
         random.shuffle(self.cards)
@@ -51,6 +52,8 @@ class Deck:
             self.count += 1
         elif c == 11 or c == 10:
             self.count -= 1
+
+        self.TC = self.count // (1+(len(self.cards))//52)
         return c
 
 
@@ -121,7 +124,7 @@ class Game:
         s1 = sum(player)
         s2 = dealer[1]
         s3 = 1 if 11 in player else 0
-        s4 = deck.count
+        s4 = deck.TC
 
         return player, dealer, s1, s2, s3, s4
 
@@ -153,6 +156,7 @@ def Q_learn(gamma, alpha, epsilon, n_episodes, decay, deck):
         #    action =  random.randint(0, 1) # take random action
         #else:
         #    action = np.argmax(Q[state])
+        #print(deck.TC)
 
         i = 0
         while i < max_steps:
@@ -170,7 +174,7 @@ def Q_learn(gamma, alpha, epsilon, n_episodes, decay, deck):
             else:
                 reward, complete = game.stand(player, dealer, deck)
 
-            s4 = deck.count
+            s4 = deck.TC
 
             state2 = encodeState(s1,s2,s3,s4)
             
@@ -215,13 +219,13 @@ def play(gamma, alpha, epsilon, n_episodes, decay, iterations):
         s = encodeState(s1,s2,s3,s4)
 
         complete = 0
-        if not i % 1000:
+        if not i % 10000:
             print(i, "######################")
         while not complete:
             # Choose action from Q table
             a = np.argmax(q[s])
-            if not i % 1000:
-                print(s1,s2,s3,s4)
+            #if not i % 1000:
+            #    print(s1,s2,s3,s4)
 
             if a == 1:
                 player, reward, complete = game.hit(player, deck, dealer, s3)
@@ -235,12 +239,14 @@ def play(gamma, alpha, epsilon, n_episodes, decay, iterations):
             # Get new state & reward from environment
             #s1,r,d,_ = env.step(a)
             if complete:
-                if deck.count >= 8:
+                if deck.TC >= 12:
                     over5 += 1
-                elif deck.count <= -8:
+                    o5w += reward
+                elif deck.TC <= -12:
                     under5 += 1
-            if not i % 1000:
-                print(reward)
+                    u5w += reward
+            #if not i % 1000:
+            #    print(reward)
             if complete:
                 if reward == 1:
                     wins += 1
@@ -248,17 +254,18 @@ def play(gamma, alpha, epsilon, n_episodes, decay, iterations):
                     draws += 1
                 else:
                     losses += 1
-                if deck.count >= 8 and reward == 1:
-                    o5w += 1
-                elif deck.count <= -8 and reward == 1:
-                    u5w += 1
+                #if deck.TC >= 12 and reward == 1:
+                #    o5w += 1
+                #elif deck.TC <= -12 and reward == 1:
+                #    u5w += 1
 
-            s4 = deck.count
+            s4 = deck.TC
 
             #s = s1
             s = encodeState(s1,s2,s3,s4)
     print(f"The agents average score was {((wins-losses)/iterations)}, and won {wins} times, lost {losses} times, drawed {draws} times")
     print(f"Over = {o5w/over5}", f"Under = {u5w/under5}")
+    print(f"{o5w}, {over5}, {u5w}, {under5}")
 
 
-play(1.0, 0.1, 1, 500000, 0.999998, 100000)
+play(1.0, 0.1, 1, 5000000, 0.999998, 1000000)
