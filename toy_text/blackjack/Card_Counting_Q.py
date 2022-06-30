@@ -13,11 +13,11 @@ def encodeState(s1,s2,s3,s4):
   else:
       s3 = 0
 
-  if s4 <= -5:
+  if s4 <= -8:
     s4 = 0
   elif s4 <= 0:
     s4 = 1
-  elif s4 >= 5:
+  elif s4 >= 8:
     s4 = 3
   else:
     s4 = 2
@@ -42,11 +42,11 @@ class Deck:
 
     def draw(self):
         try:
-            c = cards.pop()
+            c = self.cards.pop(0)
         except:
             self.cards = [11,2,3,4,5,6,7,8,9,10,10,10,10]*24
             self.shuff()
-            c = self.cards.pop()
+            c = self.cards.pop(0)
         if 2 <= c <= 6:
             self.count += 1
         elif c == 11 or c == 10:
@@ -55,9 +55,6 @@ class Deck:
 
 
 class Game:
-    def __init__(self):
-        self.deck = Deck()
-        self.count = 0
 
     def hit(self, player, deck, dealer, s3):
         player.append(deck.draw())
@@ -238,9 +235,9 @@ def play(gamma, alpha, epsilon, n_episodes, decay, iterations):
             # Get new state & reward from environment
             #s1,r,d,_ = env.step(a)
             if complete:
-                if deck.count >= 15:
+                if deck.count >= 8:
                     over5 += 1
-                elif deck.count <= 5:
+                elif deck.count <= -8:
                     under5 += 1
             if not i % 1000:
                 print(reward)
@@ -251,9 +248,9 @@ def play(gamma, alpha, epsilon, n_episodes, decay, iterations):
                     draws += 1
                 else:
                     losses += 1
-                if deck.count >= 15 and reward == 1:
+                if deck.count >= 8 and reward == 1:
                     o5w += 1
-                elif deck.count <= 5 and reward == 1:
+                elif deck.count <= -8 and reward == 1:
                     u5w += 1
 
             s4 = deck.count
@@ -264,4 +261,4 @@ def play(gamma, alpha, epsilon, n_episodes, decay, iterations):
     print(f"Over = {o5w/over5}", f"Under = {u5w/under5}")
 
 
-play(1.0, 0.1, 1, 50000, 0.999998, 10000)
+play(1.0, 0.1, 1, 500000, 0.999998, 100000)
