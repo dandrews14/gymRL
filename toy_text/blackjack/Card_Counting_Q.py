@@ -13,19 +13,21 @@ def encodeState(s1,s2,s3,s4):
   else:
       s3 = 0
 
-  if s4 <= -8:
+  if s4 <= -10:
     s4 = 0
-  elif s4 <= 4:
+  elif s4 <= -5:
     s4 = 1
-  elif s4 >= 12:
-    s4 = 3
-  else:
+  elif -5 < s4 < 5:
     s4 = 2
+  elif 5 <= s4 < 10:
+    s4 = 3 
+  else:
+    s4 = 4
 
   output = s1
   output *= 11
   output += s2
-  output *= 4
+  output *= 5
   output += s4
   output *= 2
   output += s3
@@ -142,7 +144,7 @@ def Q_learn(gamma, alpha, epsilon, n_episodes, decay, deck):
 
     game = Game()
     
-    Q = np.zeros((32 * 12 * 2 * 4, 2))
+    Q = np.zeros((32 * 12 * 2 * 5, 2))
     for ep in range(n_episodes):
 
         player, dealer, s1, s2, s3, s4 = game.start(deck)
@@ -268,4 +270,4 @@ def play(gamma, alpha, epsilon, n_episodes, decay, iterations):
     print(f"{o5w}, {over5}, {u5w}, {under5}")
 
 
-play(1.0, 0.1, 1, 5000000, 0.999998, 1000000)
+play(1.0, 0.1, 1, 500000, 0.999998, 100000)
