@@ -179,7 +179,7 @@ def Q_learn(gamma, alpha, epsilon, n_episodes, decay, deck):
             s4 = deck.TC
 
             state2 = encodeState(s1,s2,s3,s4)
-            
+
             # Update Q
             Q[state][action] = Q[state][action] + alpha*(reward + gamma*Q[state2][np.argmax(Q[state2])] - Q[state][action])
 
@@ -241,10 +241,10 @@ def play(gamma, alpha, epsilon, n_episodes, decay, iterations):
             # Get new state & reward from environment
             #s1,r,d,_ = env.step(a)
             if complete:
-                if deck.TC >= 12:
+                if deck.TC >= 0:
                     over5 += 1
                     o5w += reward
-                elif deck.TC <= -12:
+                elif deck.TC <= 0:
                     under5 += 1
                     u5w += reward
             #if not i % 1000:
@@ -252,10 +252,12 @@ def play(gamma, alpha, epsilon, n_episodes, decay, iterations):
             if complete:
                 if reward == 1:
                     wins += 1
+                    #wins += max(1,deck.TC)
                 elif reward == 0:
                     draws += 1
                 else:
                     losses += 1
+                    #losses += max(1,deck.TC)
                 #if deck.TC >= 12 and reward == 1:
                 #    o5w += 1
                 #elif deck.TC <= -12 and reward == 1:
@@ -270,4 +272,6 @@ def play(gamma, alpha, epsilon, n_episodes, decay, iterations):
     print(f"{o5w}, {over5}, {u5w}, {under5}")
 
 
-play(1.0, 0.1, 1, 500000, 0.999998, 100000)
+play(1.0, 0.1, 1, 600000, 0.999998, 500000)
+
+
